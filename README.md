@@ -27,6 +27,8 @@ Agents, skills, and slash commands for ServiceNow development with [OpenCode](ht
 
 ## Quick Start
 
+### macOS / Linux
+
 ```bash
 # 1. Clone this repo
 git clone <repo-url> ~/Projects/servicenow-opencode-config
@@ -46,6 +48,31 @@ export SERVICENOW_USERNAME="your-username"
 export SERVICENOW_PASSWORD="your-password"
 export SERVICENOW_ENV="dev"
 ```
+
+### Windows (PowerShell)
+
+```powershell
+# 1. Clone this repo
+git clone <repo-url> $HOME\Projects\servicenow-opencode-config
+
+# 2. Run the installer (creates symlinks into ~/.config/opencode/)
+cd $HOME\Projects\servicenow-opencode-config
+.\install.ps1
+
+# 3. Add the MCP server to your opencode.jsonc
+#    Copy the config from mcp-config-template.jsonc into your
+#    opencode.jsonc under "mcpServers"
+
+# 4. Set your ServiceNow credentials as environment variables
+#    Add these to your PowerShell profile ($PROFILE) or set them
+#    in Settings > System > Environment Variables:
+$env:SERVICENOW_INSTANCE_URL = "https://your-instance.service-now.com"
+$env:SERVICENOW_USERNAME = "your-username"
+$env:SERVICENOW_PASSWORD = "your-password"
+$env:SERVICENOW_ENV = "dev"
+```
+
+> **Tip:** To persist environment variables on Windows, add the `$env:` lines to your PowerShell profile (`$PROFILE`), or set them permanently via Settings > System > About > Advanced system settings > Environment Variables.
 
 ## MCP Server Configuration
 
@@ -109,7 +136,8 @@ Skills are loaded automatically by agents when needed. For example, when writing
 ## Updating
 
 ```bash
-cd ~/Projects/servicenow-opencode-config
+cd ~/Projects/servicenow-opencode-config   # macOS/Linux
+cd $HOME\Projects\servicenow-opencode-config   # Windows
 git pull
 ```
 
@@ -117,17 +145,34 @@ Since the installer creates symlinks, pulling updates automatically takes effect
 
 ## Uninstalling
 
+macOS / Linux:
+
 ```bash
 cd ~/Projects/servicenow-opencode-config
 ./uninstall.sh
+```
+
+Windows (PowerShell):
+
+```powershell
+cd $HOME\Projects\servicenow-opencode-config
+.\uninstall.ps1
 ```
 
 This only removes symlinks that point back into this repo. Your other OpenCode configs are untouched.
 
 ## Reinstalling / Force Overwrite
 
+macOS / Linux:
+
 ```bash
 ./install.sh --force
+```
+
+Windows (PowerShell):
+
+```powershell
+.\install.ps1 -Force
 ```
 
 Replaces existing files with symlinks to this repo.
@@ -145,3 +190,5 @@ uv run servicenow-devtools-mcp --help
 ```
 
 If this fails, check that you have `uv` installed and the `servicenow-devtools-mcp` package is accessible.
+
+**"Symlink creation failed" (Windows)** - Enable Developer Mode in Windows Settings > For developers, or run PowerShell as Administrator. Windows requires elevated privileges or Developer Mode to create symbolic links.
