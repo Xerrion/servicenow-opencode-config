@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# install.sh - Symlink ServiceNow agents, skills, and commands into OpenCode
+# install.sh - Copy ServiceNow agents, skills, and commands into OpenCode
 #
 # Usage: ./install.sh [--force]
-#   --force  Replace existing files/symlinks instead of skipping
+#   --force  Replace existing files/directories instead of skipping
 # ---------------------------------------------------------------------------
 
 # -- Colors -----------------------------------------------------------------
@@ -23,7 +23,7 @@ CONFIG_DIR="${HOME}/.config/opencode"
 # -- State ------------------------------------------------------------------
 
 FORCE=false
-LINKED=0
+INSTALLED=0
 SKIPPED=0
 
 # -- Parse flags ------------------------------------------------------------
@@ -69,12 +69,13 @@ AGENTS_DIR="$(resolve_config_subdir "agents" "agent" "agents")"
 SKILLS_DIR="$(resolve_config_subdir "skills" "skill" "skills")"
 COMMANDS_DIR="$(resolve_config_subdir "commands" "command" "commands")"
 
-# -- Symlink helper ---------------------------------------------------------
+# -- Copy helper ------------------------------------------------------------
 
-create_symlink() {
+install_item() {
     local source="$1"
     local target="$2"
     local label="$3"
+    local replaced=false
 
     # Source must exist - fail fast on bad repo state
     if [ ! -e "$source" ]; then
@@ -82,32 +83,31 @@ create_symlink() {
         return 1
     fi
 
-    # Already a symlink pointing to the correct source - nothing to do
-    if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
-        printf "  Already linked %s\n" "$label"
-        SKIPPED=$((SKIPPED + 1))
-        return 0
-    fi
-
-    # Target exists (file, directory, or different symlink)
-    if [ -e "$target" ] || [ -L "$target" ]; then
+    # Target already exists
+    if [ -e "$target" ]; then
         if [ "$FORCE" = true ]; then
             rm -rf "$target"
-            ln -s "$source" "$target"
-            printf "${YELLOW}  Replaced %s${RESET}\n" "$label"
-            LINKED=$((LINKED + 1))
-            return 0
+            replaced=true
         else
-            printf "${YELLOW}%s${RESET} Skipped %s (already exists, use --force to replace)\n" "→" "$label"
+            printf "${YELLOW}%s${RESET} Skipped %s (already exists, use --force to replace)\n" "-" "$label"
             SKIPPED=$((SKIPPED + 1))
             return 0
         fi
     fi
 
-    # Happy path: target is free, create the symlink
-    ln -s "$source" "$target"
-    printf "${GREEN}%s${RESET} Linked %s\n" "✓" "$label"
-    LINKED=$((LINKED + 1))
+    # Copy: use -R for directories, plain cp for files
+    if [ -d "$source" ]; then
+        cp -R "$source" "$target"
+    else
+        cp "$source" "$target"
+    fi
+
+    if [ "$replaced" = true ]; then
+        printf "${YELLOW}  Replaced %s${RESET}\n" "$label"
+    else
+        printf "${GREEN}%s${RESET} Installed %s\n" "✓" "$label"
+    fi
+    INSTALLED=$((INSTALLED + 1))
 }
 
 # -- Agents (individual .md files) ------------------------------------------
@@ -115,7 +115,7 @@ create_symlink() {
 echo "Agents:"
 for file in "${SCRIPT_DIR}/agents/"*.md; do
     name="$(basename "$file")"
-    create_symlink "$file" "${AGENTS_DIR}/${name}" "$name"
+    install_item "$file" "${AGENTS_DIR}/${name}" "$name"
 done
 
 # -- Skills (entire directories, not individual files) ----------------------
@@ -124,7 +124,7 @@ echo ""
 echo "Skills:"
 for dir in "${SCRIPT_DIR}/skills/"*/; do
     name="$(basename "$dir")"
-    create_symlink "${SCRIPT_DIR}/skills/${name}" "${SKILLS_DIR}/${name}" "$name"
+    install_item "${SCRIPT_DIR}/skills/${name}" "${SKILLS_DIR}/${name}" "$name"
 done
 
 # -- Commands (individual .md files) ----------------------------------------
@@ -133,13 +133,13 @@ echo ""
 echo "Commands:"
 for file in "${SCRIPT_DIR}/commands/"*.md; do
     name="$(basename "$file")"
-    create_symlink "$file" "${COMMANDS_DIR}/${name}" "$name"
+    install_item "$file" "${COMMANDS_DIR}/${name}" "$name"
 done
 
 # -- Summary ----------------------------------------------------------------
 
 echo ""
-echo "Done! ${LINKED} items linked, ${SKIPPED} skipped."
+echo "Done! ${INSTALLED} items installed, ${SKIPPED} skipped."
 echo ""
 echo "Next steps:"
 echo "  1. Add the MCP server config to your opencode.jsonc"

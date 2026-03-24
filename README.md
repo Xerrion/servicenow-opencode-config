@@ -33,7 +33,7 @@ Agents, skills, and slash commands for ServiceNow development with [OpenCode](ht
 # 1. Clone this repo
 git clone <repo-url> ~/Projects/servicenow-opencode-config
 
-# 2. Run the installer (creates symlinks into ~/.config/opencode/)
+# 2. Run the installer (copies config files into ~/.config/opencode/)
 cd ~/Projects/servicenow-opencode-config
 ./install.sh
 
@@ -55,7 +55,7 @@ export SERVICENOW_ENV="dev"
 # 1. Clone this repo
 git clone <repo-url> $HOME\Projects\servicenow-opencode-config
 
-# 2. Run the installer (creates symlinks into ~/.config/opencode/)
+# 2. Run the installer (copies config files into ~/.config/opencode/)
 cd $HOME\Projects\servicenow-opencode-config
 .\install.ps1
 
@@ -135,13 +135,23 @@ Skills are loaded automatically by agents when needed. For example, when writing
 
 ## Updating
 
+Since files are copied (not symlinked), you need to re-run the installer after pulling updates.
+
+macOS / Linux:
+
 ```bash
-cd ~/Projects/servicenow-opencode-config   # macOS/Linux
-cd $HOME\Projects\servicenow-opencode-config   # Windows
+cd ~/Projects/servicenow-opencode-config
 git pull
+./install.sh --force
 ```
 
-Since the installer creates symlinks, pulling updates automatically takes effect - no re-install needed.
+Windows (PowerShell):
+
+```powershell
+cd $HOME\Projects\servicenow-opencode-config
+git pull
+.\install.ps1 -Force
+```
 
 ## Uninstalling
 
@@ -159,7 +169,7 @@ cd $HOME\Projects\servicenow-opencode-config
 .\uninstall.ps1
 ```
 
-This only removes symlinks that point back into this repo. Your other OpenCode configs are untouched.
+This removes the ServiceNow config files installed by this repo. Your other OpenCode configs are untouched. You will be prompted to confirm before anything is deleted - pass `--yes` (macOS/Linux) or `-Yes` (Windows) to skip the prompt.
 
 ## Reinstalling / Force Overwrite
 
@@ -175,7 +185,7 @@ Windows (PowerShell):
 .\install.ps1 -Force
 ```
 
-Replaces existing files with symlinks to this repo.
+Replaces existing files with fresh copies from this repo.
 
 ## Troubleshooting
 
@@ -190,5 +200,3 @@ uv run servicenow-devtools-mcp --help
 ```
 
 If this fails, check that you have `uv` installed and the `servicenow-devtools-mcp` package is accessible.
-
-**"Symlink creation failed" (Windows)** - Enable Developer Mode in Windows Settings > For developers, or run PowerShell as Administrator. Windows requires elevated privileges or Developer Mode to create symbolic links.
