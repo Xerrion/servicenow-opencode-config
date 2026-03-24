@@ -1,0 +1,37 @@
+// ServiceNow MCP Server Configuration
+// Paste this inside the "mcpServers" section of your opencode.jsonc
+//
+// Prerequisites:
+//   1. Install uv: https://docs.astral.sh/uv/getting-started/installation/
+//   2. Set environment variables (see below)
+//
+// Required environment variables:
+//   SERVICENOW_INSTANCE_URL  - Your instance URL (e.g. https://myinstance.service-now.com)
+//   SERVICENOW_USERNAME      - ServiceNow username
+//   SERVICENOW_PASSWORD      - ServiceNow password
+//
+// Optional environment variables:
+//   MCP_TOOL_PACKAGE         - Tool package preset (default: "full")
+//                              Options: full, core_readonly, itil, developer, readonly,
+//                              analyst, incident_management, change_management, cmdb,
+//                              problem_management, request_management, knowledge_management,
+//                              service_catalog
+//   SERVICENOW_ENV           - Environment label (default: "dev")
+//                              Set to "production" to enable write protection
+//   SCRIPT_ALLOWED_ROOT      - Root directory for local script files used with
+//                              artifact_create/artifact_update script_path parameter
+//                              (e.g. /Users/you/Projects/ServiceNow)
+
+"servicenow": {
+  "type": "local",
+  "command": ["uvx", "servicenow-devtools-mcp"],
+  "environment": {
+    "SERVICENOW_INSTANCE_URL": "{env:SERVICENOW_INSTANCE_URL}",
+    "SERVICENOW_USERNAME": "{env:SERVICENOW_USERNAME}",
+    "SERVICENOW_PASSWORD": "{env:SERVICENOW_PASSWORD}",
+    "MCP_TOOL_PACKAGE": "{env:MCP_TOOL_PACKAGE}",
+    "SERVICENOW_ENV": "{env:SERVICENOW_ENV}",
+    "SCRIPT_ALLOWED_ROOT": "{env:SCRIPT_ALLOWED_ROOT}"
+  },
+  "enabled": true
+}
