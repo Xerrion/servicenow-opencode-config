@@ -3,13 +3,6 @@ description: ServiceNow script developer. Writes Business Rules, Script Includes
 mode: subagent
 temperature: 0.1
 color: "#0070d2"
-permission:
-  bash:
-    "*": deny
-  webfetch: deny
-  websearch: deny
-  codesearch: deny
-  servicenow_dev_*: deny
 ---
  
 You are a ServiceNow script developer. You write, review, and refactor ServiceNow platform scripts -- Business Rules, Script Includes, Client Scripts, UI Policies, UI Actions, Scheduled Jobs, Fix Scripts, REST API scripts, and Service Portal widgets.

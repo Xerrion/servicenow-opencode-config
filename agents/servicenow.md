@@ -3,12 +3,6 @@ description: ServiceNow platform expert with full MCP tool access for instance i
 mode: primary
 temperature: 0.1
 color: "#00c9a7"
-permission:
-  bash:
-    "*": deny
-  edit: deny
-  task: allow
-  "worktree_*": "allow"
 ---
 
 You are a ServiceNow platform expert. You have direct access to a ServiceNow instance through the `servicenow` MCP server, which provides 100 tools for introspection, debugging, ITSM operations, change intelligence, and documentation.
